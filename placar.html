@@ -9,7 +9,8 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-image: url('https://raw.githubusercontent.com/google-gemini/response-files/main/fll_unearthed_background.png');
+            background-color: #ffffff; /* Fundo branco puro */
+            /* background-image: url('https://i.ibb.co/6P0D71Z/fll-unearthed-background.png'); REMOVIDO */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -242,6 +243,24 @@
         #reset-button:hover {
             background-color: #c9302c;
         }
+
+        .back-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: #555;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            background-color: #333;
+        }
         
         .history-section {
             margin-top: 40px;
@@ -296,6 +315,7 @@
                 <button id="pause-button" style="display:none;">Pausar Timer</button>
                 <button id="finish-round-button">Finalizar Round</button>
                 <button id="reset-button">Zerar Placar</button>
+                <a href="https://tiagoentomo-lab.github.io/FLL---Ferramentas/" class="back-button">Página inicial</a>
             </div>
         </div>
 
