@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawplan FLL - MASTERPIECE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #007acc;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .toolbar button, .toolbar input[type="range"] {
+            padding: 8px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, border-color 0.2s;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .toolbar button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .toolbar button.selected-tool {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .toolbar .color-button {
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            min-height: 35px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .toolbar .color-button.selected-tool {
+            border: 3px solid #007bff;
+            transform: scale(1.1);
+        }
+        #size-slider {
+            width: 100px;
+            vertical-align: middle;
+            -webkit-appearance: none;
+            background: #ddd;
+            height: 8px;
+            border-radius: 5px;
+        }
+        #size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+        #clear-button { background-color: #dc3545; color: white; border-color: #dc3545; }
+        #clear-button:hover { background-color: #c82333; }
+        #undo-button { background-color: #ffc107; color: #333; border-color: #ffc107; }
+        #undo-button:hover { background-color: #e0a800; }
+        #add-output-button { background-color: #4CAF50; color: white; }
+        #add-output-button:hover { background-color: #45a049; }
+
+        .output-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 10px;
+            background-color: #fafafa;
+        }
+        .output-toolbar.selected {
+            border: 2px solid #007bff;
+        }
+        .output-toolbar h3 {
+            margin: 0;
+            font-size: 1em;
+            color: #555;
+        }
+        .output-toolbar .color-button {
+            border: 2px solid transparent;
+        }
+        .output-toolbar .color-button.selected-tool {
+             border-color: #007bff;
+             transform: scale(1.1);
+        }
+        .output-toolbar .visibility-button {
+            background-color: #e9ecef;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border: 1px solid #ccc;
+        }
+        .output-toolbar .visibility-button.hidden {
+            background-color: #dc3545;
+            color: white;
+        }
+        .output-toolbar .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border: 1px solid #dc3545;
+        }
+        .output-toolbar .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        #drawing-area {
+            border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-size: cover;
+            background-position: center;
+            image-rendering: -webkit-optimize-contrast;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        #drawing-area-container {
+            position: relative;
+            width: 100%;
+            max-width: 960px;
+            margin-bottom: 20px;
+        }
+        #drawing-area, .drawing-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            touch-action: none; /* Previne o zoom padrão do celular */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Drawplan FLL - MASTERPIECE</h1>
+
+    <div class="toolbar">
+        <button id="pencil-button" class="selected-tool">Lápis</button>
+        <button id="eraser-button">Borracha</button>
+        <input type="range" id="size-slider" min="1" max="20" value="5">
+        <button id="add-output-button">Adicionar Saída</button>
+        <button id="undo-button">Desfazer</button>
+        <button id="clear-button">Limpar</button>
+    </div>
+
+    <div id="drawing-area-container">
+        <canvas id="drawing-area"></canvas>
+    </div>
+
+    <script>
+        const container = document.getElementById('drawing-area-container');
+        const canvas = document.getElementById('drawing-area');
+        const ctx = canvas.getContext('2d');
+        const undoButton = document.getElementById('undo-button');
+        const clearButton = document.getElementById('clear-button');
+        const saveButton = document.getElementById('save-button');
+        const pencilButton = document.getElementById('pencil-button');
+        const eraserButton = document.getElementById('eraser-button');
+        const sizeSlider = document.getElementById('size-slider');
+        const addOutputButton = document.getElementById('add-output-button');
+        const toolbar = document.querySelector('.toolbar');
+        
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentSize = 5;
+        let isEraser = false;
+        
+        let outputCounter = 0;
+        const outputs = new Map();
+        let activeOutput = null;
+
+        const randomColors = ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4'];
+
+        const background = new Image();
+        background.src = 'tapete.png';
+        background.onload = () => {
+            const maxWidth = 960;
+            const maxHeight = 720;
+            let ratio = Math.min(maxWidth / background.width, maxHeight / background.height);
+            canvas.width = background.width * ratio;
+            canvas.height = background.height * ratio;
+            container.style.width = `${canvas.width}px`;
+            container.style.height = `${canvas.height}px`;
+
+            ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+            // Cria a saída inicial após o carregamento
+            createOutput('Saída Principal', 'black');
+        };
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+        
+        function getActiveContext() {
+            if (activeOutput) {
+                return activeOutput.ctx;
+            }
+            return null;
+        }
+
+        function startDrawing(e) {
+            const activeCtx = getActiveContext();
+            if (!activeCtx) return;
+            isDrawing = true;
+            const pos = getMousePos(e);
+            [lastX, lastY] = [pos.x, pos.y];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const activeCtx = getActiveContext();
+            if (!activeCtx) return;
+            const pos = getMousePos(e);
+            
+            activeCtx.beginPath();
+            activeCtx.lineJoin = 'round';
+            activeCtx.lineCap = 'round';
+            activeCtx.lineWidth = currentSize;
+            activeCtx.strokeStyle = isEraser ? 'white' : activeOutput.color;
+            
+            activeCtx.moveTo(lastX, lastY);
+            activeCtx.lineTo(pos.x, pos.y);
+            activeCtx.stroke();
+
+            [lastX, lastY] = [pos.x, pos.y];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            // Remove todos os canvases de saída e suas barras
+            outputs.forEach(output => {
+                output.canvas.remove();
+                document.getElementById(`toolbar-${output.id}`).remove();
+            });
+            outputs.clear();
+
+            // Desenha a imagem de fundo novamente no canvas principal
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+            
+            // Recria a saída principal
+            createOutput('Saída Principal', 'black');
+        }
+
+        function saveCanvas() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCtx.drawImage(background, 0, 0, canvas.width, canvas.height);
+            outputs.forEach(output => {
+                if (output.visible) {
+                    tempCtx.drawImage(output.canvas, 0, 0);
+                }
+            });
+
+            const link = document.createElement('a');
+            link.download = 'fll_drawplan.png';
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function selectTool(toolButton) {
+            document.querySelectorAll('.toolbar button').forEach(btn => {
+                if (btn !== undoButton && btn !== clearButton && btn !== saveButton && btn !== addOutputButton) {
+                    btn.classList.remove('selected-tool');
+                }
+            });
+            toolButton.classList.add('selected-tool');
+        }
+
+        function selectOutput(output) {
+            // Remove a seleção de todas as outras saídas
+            document.querySelectorAll('.output-toolbar').forEach(toolbar => {
+                toolbar.classList.remove('selected');
+            });
+            document.querySelectorAll('.output-toolbar .color-button').forEach(btn => btn.classList.remove('selected-tool'));
+            
+            // Seleciona a saída atual
+            const selectedToolbar = document.getElementById(`toolbar-${output.id}`);
+            if (selectedToolbar) {
+                selectedToolbar.classList.add('selected');
+            }
+            const selectedColorButton = document.getElementById(`color-button-${output.id}`);
+            if (selectedColorButton) {
+                selectedColorButton.classList.add('selected-tool');
+            }
+            
+            // Define o output ativo para desenho
+            activeOutput = output;
+
+            // Garante que o lápis esteja selecionado, pois a cor foi selecionada
+            selectTool(pencilButton);
+        }
+
+        function createOutput(name, color) {
+            outputCounter++;
+            const outputId = `output-${outputCounter}`;
+            const outputCanvas = document.createElement('canvas');
+            outputCanvas.id = outputId;
+            outputCanvas.classList.add('drawing-layer');
+            outputCanvas.width = canvas.width;
+            outputCanvas.height = canvas.height;
+            container.appendChild(outputCanvas);
+            
+            const output = {
+                id: outputId,
+                name: name,
+                canvas: outputCanvas,
+                ctx: outputCanvas.getContext('2d'),
+                color: color,
+                visible: true,
+            };
+            outputs.set(outputId, output);
+            setupOutputToolbar(output);
+            selectOutput(output);
+        }
+
+        function setupOutputToolbar(output) {
+            const toolbarContainer = document.createElement('div');
+            toolbarContainer.classList.add('output-toolbar');
+            toolbarContainer.id = `toolbar-${output.id}`;
+            
+            const outputName = document.createElement('h3');
+            outputName.textContent = output.name;
+            
+            const colorButton = document.createElement('button');
+            colorButton.classList.add('color-button');
+            colorButton.id = `color-button-${output.id}`;
+            colorButton.style.backgroundColor = output.color;
+            
+            const visibilityButton = document.createElement('button');
+            visibilityButton.classList.add('visibility-button');
+            visibilityButton.textContent = 'Ocultar';
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-button');
+            deleteButton.textContent = 'Excluir';
+            
+            // Eventos da nova barra
+            colorButton.addEventListener('click', () => {
+                isEraser = false;
+                selectOutput(output);
+            });
+            
+            visibilityButton.addEventListener('click', () => {
+                output.visible = !output.visible;
+                output.canvas.style.display = output.visible ? 'block' : 'none';
+                visibilityButton.textContent = output.visible ? 'Ocultar' : 'Mostrar';
+                visibilityButton.classList.toggle('hidden', !output.visible);
+            });
+
+            deleteButton.addEventListener('click', () => {
+                if (outputs.size > 1 && confirm(`Tem certeza que deseja excluir "${output.name}"?`)) {
+                    output.canvas.remove();
+                    toolbarContainer.remove();
+                    outputs.delete(output.id);
+
+                    const remainingOutputs = Array.from(outputs.values());
+                    if (remainingOutputs.length > 0) {
+                        selectOutput(remainingOutputs[remainingOutputs.length - 1]);
+                    } else {
+                        activeOutput = null;
+                    }
+                } else if (outputs.size <= 1) {
+                    alert('Não é possível excluir a única saída restante. Use o botão "Limpar" para recomeçar.');
+                }
+            });
+
+            toolbarContainer.appendChild(outputName);
+            toolbarContainer.appendChild(colorButton);
+            toolbarContainer.appendChild(visibilityButton);
+            toolbarContainer.appendChild(deleteButton);
+
+            toolbar.parentNode.insertBefore(toolbarContainer, toolbar.nextSibling);
+        }
+
+        // Event Listeners Globais
+        container.addEventListener('mousedown', startDrawing);
+        container.addEventListener('mousemove', draw);
+        container.addEventListener('mouseup', stopDrawing);
+        container.addEventListener('mouseout', stopDrawing);
+        document.addEventListener('mouseup', stopDrawing);
+        
+        container.addEventListener('touchstart', startDrawing);
+        container.addEventListener('touchmove', draw);
+        container.addEventListener('touchend', stopDrawing);
+
+        undoButton.addEventListener('click', () => {
+            alert('A funcionalidade de "Desfazer" não está disponível no modo de camadas, pois cada desenho é uma camada separada.');
+        });
+        clearButton.addEventListener('click', clearCanvas);
+        
+        pencilButton.addEventListener('click', () => {
+            isEraser = false;
+            selectTool(pencilButton);
+            if (activeOutput) {
+                selectOutput(activeOutput);
+            }
+        });
+
+        eraserButton.addEventListener('click', () => {
+            isEraser = true;
+            selectTool(eraserButton);
+            document.querySelectorAll('.output-toolbar .color-button').forEach(btn => btn.classList.remove('selected-tool'));
+        });
+        
+        sizeSlider.addEventListener('input', (e) => {
+            currentSize = e.target.value;
+        });
+
+        addOutputButton.addEventListener('click', () => {
+            const newColor = randomColors[outputs.size % randomColors.length];
+            createOutput(`Saída ${outputs.size + 1}`, newColor);
+        });
+    </script>
+</body>
+</html>

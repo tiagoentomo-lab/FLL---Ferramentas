@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar FLL - Masterpiece</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: url('https://raw.githubusercontent.com/google-gemini/response-files/main/fll_unearthed_background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007acc;
+            font-size: 2.5em;
+            border-bottom: 3px solid #007acc;
+            padding-bottom: 10px;
+            margin: 20px 0;
+        }
+
+        .timer-container {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #005f99;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #e0f2ff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: color 0.3s;
+        }
+        
+        .timer-container.countdown {
+            color: #d9534f;
+            animation: pulse 1s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .timer-container.finished {
+            color: #d9534f;
+        }
+
+        .mission-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .mission-card {
+            background-color: #f7fcff;
+            border: 1px solid #b3e0ff;
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            color: #005f99;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #e0f2ff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s;
+            user-select: none;
+        }
+
+        .task:active {
+            transform: scale(0.98);
+        }
+
+        .task:hover {
+            background-color: #cce7ff;
+        }
+
+        .task.selected {
+            background-color: #007acc;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .task span.points {
+            font-weight: 600;
+        }
+
+        .bonus-task {
+            background-color: #f0f0f0;
+            color: #555;
+        }
+
+        .bonus-task.selected {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .total-score {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #005f99;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 2.5em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            transition: background-color 0.3s;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap; /* Para telas menores */
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #start-button {
+            background-color: #28a745;
+        }
+
+        #start-button:hover {
+            background-color: #218838;
+        }
+        
+        #pause-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        #pause-button:hover {
+            background-color: #e0a800;
+        }
+        
+        #finish-round-button {
+            background-color: #007bff;
+        }
+        
+        #finish-round-button:hover {
+            background-color: #0056b3;
+        }
+        
+        #reset-button {
+            background-color: #d9534f;
+        }
+
+        #reset-button:hover {
+            background-color: #c9302c;
+        }
+        
+        .history-section {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(240, 240, 240, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-section h2 {
+            color: #005f99;
+            border-bottom: 2px solid #005f99;
+            padding-bottom: 5px;
+        }
+        
+        #history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 1.2em;
+        }
+        
+        #history-list li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-container">
+            <img src="logo scorer.png" alt="Logo da Equipe">
+        </div>
+        <h1>Placar FLL - MASTERPIECE</h1>
+        <div class="timer-container" id="timer">02:30</div>
+        <div class="button-container">
+            <button id="start-button">Iniciar Timer</button>
+            <button id="pause-button" style="display:none;">Pausar Timer</button>
+            <button id="finish-round-button">Finalizar Round</button>
+            <button id="reset-button">Zerar Placar</button>
+        </div>
+    </div>
+
+    <div class="mission-section">
+
+        <div class="mission-card" data-mission="inspection" data-selection-mode="single">
+            <h2>Inspeção de Equipamentos</h2>
+            <div class="task" data-points="20">Robô e equipamentos couberam na área de lançamento e tinham, no máximo, 12 pol. de altura.</div>
+        </div>
+
+        <div class="mission-card" data-mission="1" data-selection-mode="multi">
+            <h2>Missão 01: Escavação superficial</h2>
+            <div class="task" data-points="10">1º Depósito de sedimentos removido e tocando no tapete.</div>
+            <div class="task" data-points="10">2º Depósito de sedimentos removido e tocando no tapete.</div>
+            <div class="task" data-points="10">O pincel da arqueóloga não está tocando no sítio arqueológico.</div>
+        </div>
+
+        <div class="mission-card" data-mission="2" data-selection-mode="multi">
+            <h2>Missão 02: Revelação do mapa</h2>
+            <div class="task" data-points="10">1ª Seção da camada superficial completamente removida.</div>
+            <div class="task" data-points="10">2ª Seção da camada superficial completamente removida.</div>
+            <div class="task" data-points="10">3ª Seção da camada superficial completamente removida.</div>
+        </div>
+
+        <div class="mission-card" data-mission="3" data-selection-mode="multi">
+            <h2>Missão 03: Exploradora de minas</h2>
+            <div class="task" data-points="30">O vagonete da sua equipe está na arena da equipe adversária.</div>
+            <div class="task bonus-task" data-points="10">Bônus: e o vagonete da equipe adversária está na arena da sua equipe.</div>
+        </div>
+
+        <div class="mission-card" data-mission="4" data-selection-mode="multi">
+            <h2>Missão 04: Extração segura</h2>
+            <div class="task" data-points="30">O artefato precioso não está tocando na mina.</div>
+            <div class="task" data-points="10">Ambas as estruturas de sustentação estão de pé.</div>
+        </div>
+
+        <div class="mission-card" data-mission="5" data-selection-mode="single">
+            <h2>Missão 05: Quem viveu aqui?</h2>
+            <div class="task" data-points="30">O chão da estrutura está completamente virado para cima.</div>
+        </div>
+
+        <div class="mission-card" data-mission="6" data-selection-mode="multi">
+            <h2>Missão 06: Forja</h2>
+            <div class="task" data-points="10">1º Bloco de minério não está tocando na forja.</div>
+            <div class="task" data-points="10">2º Bloco de minério não está tocando na forja.</div>
+            <div class="task" data-points="10">3º Bloco de minério não está tocando na forja.</div>
+        </div>
+
+        <div class="mission-card" data-mission="7" data-selection-mode="single">
+            <h2>Missão 07: Levantamento de peso</h2>
+            <div class="task" data-points="30">A pedra de moinho não está mais tocando na sua base.</div>
+        </div>
+
+        <div class="mission-card" data-mission="8" data-selection-mode="multi">
+            <h2>Missão 08: Silo</h2>
+            <div class="task" data-points="10">1ª Pedra preservada está fora do silo.</div>
+            <div class="task" data-points="10">2ª Pedra preservada está fora do silo.</div>
+            <div class="task" data-points="10">3ª Pedra preservada está fora do silo.</div>
+        </div>
+
+        <div class="mission-card" data-mission="9" data-selection-mode="multi">
+            <h2>Missão 09: O que está à venda?</h2>
+            <div class="task" data-points="20">O telhado está completamente levantado.</div>
+            <div class="task" data-points="10">As mercadorias estão levantadas.</div>
+        </div>
+
+        <div class="mission-card" data-mission="10" data-selection-mode="multi">
+            <h2>Missão 10: Desequilíbrio da balança</h2>
+            <div class="task" data-points="20">A balança foi desequilibrada e está tocando no tapete.</div>
+            <div class="task" data-points="10">O prato da balança foi completamente removido.</div>
+        </div>
+
+        <div class="mission-card" data-mission="11" data-selection-mode="multi">
+            <h2>Missão 11: Pesca de artefatos</h2>
+            <div class="task" data-points="20">Os artefatos estão suspensos acima da camada de solo.</div>
+            <div class="task bonus-task" data-points="10">Bônus: e a bandeira do guindaste está pelo menos parcialmente abaixada.</div>
+        </div>
+
+        <div class="mission-card" data-mission="12" data-selection-mode="multi">
+            <h2>Missão 12: Operação de resgate</h2>
+            <div class="task" data-points="20">A areia foi completamente removida.</div>
+            <div class="task" data-points="10">O navio está completamente levantado.</div>
+            <div class="note">Considera-se que a areia foi completamente removida quando o acionador de tração ultrapassa a linha no tapete.</div>
+        </div>
+
+        <div class="mission-card" data-mission="13" data-selection-mode="single">
+            <h2>Missão 13: Reconstrução da estátua</h2>
+            <div class="task" data-points="30">A estátua está completamente levantada.</div>
+        </div>
+
+        <div class="mission-card" data-mission="14" data-selection-mode="multi">
+            <h2>Missão 14: Fórum</h2>
+            <div class="task" data-points="5">Pincel no fórum</div>
+            <div class="task" data-points="5">Camada superficial do solo no fórum</div>
+            <div class="task" data-points="5">Artefato precioso no fórum</div>
+            <div class="task" data-points="5">Vagonete da equipe adversária no fórum</div>
+            <div class="task" data-points="5">Minério com artefato fossilizado no fórum</div>
+            <div class="task" data-points="5">Pedra de moinho no fórum</div>
+            <div class="task" data-points="5">Prato da balança no fórum</div>
+        </div>
+
+        <div class="mission-card" data-mission="15" data-selection-mode="multi">
+            <h2>Missão 15: Marcação do sítio arqueológico</h2>
+            <div class="task" data-points="10">1º local com bandeira.</div>
+            <div class="task" data-points="10">2º local com bandeira.</div>
+            <div class="task" data-points="10">3º local com bandeira.</div>
+        </div>
+
+        <div class="mission-card" data-mission="precision" data-selection-mode="single">
+            <h2>Discos de Precisão</h2>
+            <div class="task" data-points="10">1 disco restante: 10 pontos</div>
+            <div class="task" data-points="15">2 discos restantes: 15 pontos</div>
+            <div class="task" data-points="25">3 discos restantes: 25 pontos</div>
+            <div class="task" data-points="35">4 discos restantes: 35 pontos</div>
+            <div class="task" data-points="50">5 discos restantes: 50 pontos</div>
+            <div class="task" data-points="50">6 discos restantes: 50 pontos</div>
+            <div class="note">Seis discos de precisão valem 50 pontos no total. O número de discos restantes no final do round determina a pontuação.</div>
+        </div>
+
+    </div>
+
+    <div class="total-score">
+        Pontuação Total: <span id="score">0</span>
+    </div>
+    
+    <div class="history-section">
+        <h2>Histórico de Rounds</h2>
+        <ul id="history-list">
+            </ul>
+    </div>
+
+    <audio id="background-music" src="chicken_dance.mp3" preload="auto"></audio>
+
+</div>
+
+<script>
+    const tasks = document.querySelectorAll('.task');
+    const scoreElement = document.getElementById('score');
+    const resetButton = document.getElementById('reset-button');
+    const startButton = document.getElementById('start-button');
+    const pauseButton = document.getElementById('pause-button');
+    const finishRoundButton = document.getElementById('finish-round-button');
+    const timerElement = document.getElementById('timer');
+    const backgroundMusic = document.getElementById('background-music'); 
+    const historyList = document.getElementById('history-list');
+
+    let totalScore = 0;
+    let timerInterval;
+    let countdownInterval;
+    let timeLeft = 150; // 2 minutos e 30 segundos em segundos
+    let roundCounter = 0;
+
+    function startTimer() {
+        if (!startButton.disabled) {
+            startButton.disabled = true;
+            // Oculta o botão de pausa e finalização durante o countdown
+            pauseButton.style.display = 'none';
+            finishRoundButton.style.display = 'none';
+            
+            let countdown = 3;
+            timerElement.classList.add('countdown');
+
+            countdownInterval = setInterval(() => {
+                if (countdown > 0) {
+                    timerElement.textContent = countdown;
+                    countdown--;
+                } else {
+                    clearInterval(countdownInterval);
+                    timerElement.textContent = 'LEGOOO!!!!!';
+                    setTimeout(() => {
+                        timerElement.classList.remove('countdown');
+                        startMainTimer();
+                    }, 1000); // Exibe LEGOOO por 1 segundo antes de começar
+                }
+            }, 1000);
+        }
+    }
+    
+    function startMainTimer() {
+        pauseButton.style.display = 'inline-block';
+        finishRoundButton.style.display = 'inline-block';
+        
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(error => {
+            console.log("Autoplay bloqueado. Tente interagir com a página primeiro.", error);
+        });
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                finishRound();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        backgroundMusic.pause();
+        pauseButton.textContent = 'Continuar';
+    }
+
+    function resumeTimer() {
+        pauseButton.textContent = 'Pausar Timer';
+        backgroundMusic.play();
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                finishRound();
+            }
+        }, 1000);
+    }
+    
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+        const displaySeconds = seconds < 10 ? '0' + seconds : seconds;
+        timerElement.textContent = `${displayMinutes}:${displaySeconds}`;
+    }
+
+    function finishRound() {
+        // Para o timer e a música
+        clearInterval(timerInterval);
+        clearInterval(countdownInterval);
+        backgroundMusic.pause();
+        timerElement.classList.add('finished');
+        
+        // Adiciona a pontuação ao histórico
+        roundCounter++;
+        const listItem = document.createElement('li');
+        listItem.textContent = `Round ${roundCounter}: ${totalScore} pontos`;
+        historyList.prepend(listItem); // Adiciona no topo da lista
+        
+        // Exibe um alerta com a pontuação final
+        alert(`Fim do round ${roundCounter}!\nPontuação final: ${totalScore} pontos.`);
+
+        // Reseta o placar e os botões
+        resetPlacar();
+    }
+
+    function resetPlacar() {
+        tasks.forEach(task => task.classList.remove('selected'));
+        totalScore = 0;
+        scoreElement.textContent = totalScore;
+        
+        clearInterval(timerInterval);
+        clearInterval(countdownInterval);
+        timeLeft = 150;
+        updateTimerDisplay();
+        timerElement.classList.remove('finished');
+        timerElement.classList.remove('countdown');
+        
+        startButton.disabled = false;
+        pauseButton.style.display = 'none';
+        pauseButton.textContent = 'Pausar Timer';
+        finishRoundButton.style.display = 'inline-block';
+        
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+    }
+
+    tasks.forEach(task => {
+        task.addEventListener('click', () => {
+            const missionCard = task.closest('.mission-card');
+            const selectionMode = missionCard.getAttribute('data-selection-mode');
+            
+            if (selectionMode === 'multi') {
+                task.classList.toggle('selected');
+            } else if (selectionMode === 'single') {
+                const selectedTasksInMission = missionCard.querySelectorAll('.task.selected');
+                selectedTasksInMission.forEach(selectedTask => {
+                    if (selectedTask !== task) {
+                        selectedTask.classList.remove('selected');
+                    }
+                });
+                task.classList.toggle('selected');
+            }
+
+            updateScore();
+        });
+    });
+
+    startButton.addEventListener('click', startTimer);
+    pauseButton.addEventListener('click', () => {
+        if (pauseButton.textContent === 'Pausar Timer') {
+            pauseTimer();
+        } else {
+            resumeTimer();
+        }
+    });
+    finishRoundButton.addEventListener('click', finishRound);
+    resetButton.addEventListener('click', resetPlacar);
+
+    function updateScore() {
+        totalScore = 0;
+        document.querySelectorAll('.task.selected').forEach(selectedTask => {
+            totalScore += parseInt(selectedTask.getAttribute('data-points'));
+        });
+        scoreElement.textContent = totalScore;
+    }
+</script>
+
+</body>
+</html>
