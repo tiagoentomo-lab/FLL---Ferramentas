@@ -95,8 +95,8 @@
         }
         #clear-button { background-color: #dc3545; color: white; border-color: #dc3545; }
         #clear-button:hover { background-color: #c82333; }
-        #undo-button { background-color: #ffc107; color: #333; border-color: #ffc107; }
-        #undo-button:hover { background-color: #e0a800; }
+        /* #undo-button { background-color: #ffc107; color: #333; border-color: #ffc107; } */
+        /* #undo-button:hover { background-color: #e0a800; } */
         #add-output-button { background-color: #4CAF50; color: white; }
         #add-output-button:hover { background-color: #45a049; }
 
@@ -178,10 +178,8 @@
 
     <div class="toolbar">
         <button id="pencil-button" class="selected-tool">Lápis</button>
-        <button id="eraser-button">Borracha</button>
         <input type="range" id="size-slider" min="1" max="20" value="5">
         <button id="add-output-button">Adicionar Saída</button>
-        <button id="undo-button">Desfazer</button>
         <button id="clear-button">Limpar</button>
     </div>
 
@@ -193,11 +191,10 @@
         const container = document.getElementById('drawing-area-container');
         const canvas = document.getElementById('drawing-area');
         const ctx = canvas.getContext('2d');
-        const undoButton = document.getElementById('undo-button');
+        // undoButton e saveButton removidos
         const clearButton = document.getElementById('clear-button');
-        const saveButton = document.getElementById('save-button');
         const pencilButton = document.getElementById('pencil-button');
-        const eraserButton = document.getElementById('eraser-button');
+        // eraserButton removido
         const sizeSlider = document.getElementById('size-slider');
         const addOutputButton = document.getElementById('add-output-button');
         const toolbar = document.querySelector('.toolbar');
@@ -206,7 +203,7 @@
         let lastX = 0;
         let lastY = 0;
         let currentSize = 5;
-        let isEraser = false;
+        // isEraser removido
         
         let outputCounter = 0;
         const outputs = new Map();
@@ -267,7 +264,8 @@
             activeCtx.lineJoin = 'round';
             activeCtx.lineCap = 'round';
             activeCtx.lineWidth = currentSize;
-            activeCtx.strokeStyle = isEraser ? 'white' : activeOutput.color;
+            // Lógica da borracha removida, agora sempre usa a cor da saída
+            activeCtx.strokeStyle = activeOutput.color;
             
             activeCtx.moveTo(lastX, lastY);
             activeCtx.lineTo(pos.x, pos.y);
@@ -317,7 +315,8 @@
 
         function selectTool(toolButton) {
             document.querySelectorAll('.toolbar button').forEach(btn => {
-                if (btn !== undoButton && btn !== clearButton && btn !== saveButton && btn !== addOutputButton) {
+                // Ajuste: Botões de controle agora são apenas clearButton e addOutputButton
+                if (btn !== clearButton && btn !== addOutputButton) {
                     btn.classList.remove('selected-tool');
                 }
             });
@@ -394,7 +393,7 @@
             
             // Eventos da nova barra
             colorButton.addEventListener('click', () => {
-                isEraser = false;
+                // isEraser = false; removido
                 selectOutput(output);
             });
             
@@ -441,24 +440,18 @@
         container.addEventListener('touchmove', draw);
         container.addEventListener('touchend', stopDrawing);
 
-        undoButton.addEventListener('click', () => {
-            alert('A funcionalidade de "Desfazer" não está disponível no modo de camadas, pois cada desenho é uma camada separada.');
-        });
+        // Event listener do Desfazer removido
         clearButton.addEventListener('click', clearCanvas);
         
         pencilButton.addEventListener('click', () => {
-            isEraser = false;
+            // isEraser = false; removido
             selectTool(pencilButton);
             if (activeOutput) {
                 selectOutput(activeOutput);
             }
         });
 
-        eraserButton.addEventListener('click', () => {
-            isEraser = true;
-            selectTool(eraserButton);
-            document.querySelectorAll('.output-toolbar .color-button').forEach(btn => btn.classList.remove('selected-tool'));
-        });
+        // Event listener da Borracha removido
         
         sizeSlider.addEventListener('input', (e) => {
             currentSize = e.target.value;
